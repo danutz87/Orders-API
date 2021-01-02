@@ -13,9 +13,12 @@
     "express": "^4.17.1",
     "express-winston": "^4.0.5",
     "mongoose": "^5.11.8",
+    "uuid": "^8.3.2",
     "winston": "^3.3.3"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "nodemon": "^2.0.6"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/danutz87/Orders-API.git"

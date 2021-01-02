@@ -2,6 +2,7 @@ require("dotenv").config();
 
 const express = require("express");
 const bodyParser = require("body-parser");
+const { v4: uuidv4 } = require("uuid");
 
 const expressWinston = require("express-winston");
 const winston = require("winston");
@@ -9,6 +10,7 @@ const winston = require("winston");
 const connectToDb = require("./database");
 
 const { Order } = require("./models");
+const { response } = require("express");
 
 const port = process.env.PORT;
 
@@ -38,17 +40,26 @@ async function createApp() {
     }
   });
 
-  app.get("/:id", getOrder, (req, res) => {
-    res.send(res.order);
+  app.get("/:id", (req, res) => {
+    const { orderId } = req.params;
+    try {
+      const order = Order.findOne({ id: orderId });
+      if (!order) {
+        return res.status(404).json({ message: "Cannot find order" });
+      } else {
+        res.send(order);
+      }
+    } catch (err) {
+      return res.status(500).json({ message: err.message });
+    }
   });
 
   app.post("/", async (req, res) => {
     const order = new Order({
-      id: req.body.id,
+      id: uuidv4(),
       product: req.body.product,
       price: req.body.price,
     });
-
     try {
       const newOrder = await order.save();
       res.status(201).json(newOrder);
@@ -57,19 +68,31 @@ async function createApp() {
     }
   });
 
-  async function getOrder(req, res, next) {
-    let order;
+  app.delete("/:id", async (req, res) => {
+    const { orderId } = req.params;
     try {
-      order = await Order.findById(req.params.id);
-      if (order == null) {
-        return res.status(404).json({ message: "Cannot find order" });
-      }
+      await Product.findOneAndDelete({ id: orderId });
+      res.json({ message: "The order was deleted" });
     } catch (err) {
-      return res.status(500).json({ message: err.message });
+      res.status(500).json({ message: err.message });
     }
-    res.order = order;
-    next();
-  }
+  });
+
+  app.put("/:id", async (req, res) => {
+    const { orderId } = req.params;
+    const orderToUpdate = req.body;
+
+    if (!orderId) res.status(400).end();
+    try {
+      const updatedOrder = await Order.findOneAndUpdate(
+        { id: orderId },
+        orderToUpdate
+      );
+      res.json(updatedOrder);
+    } catch (err) {
+      res.status(500).json({ message: err.message });
+    }
+  });
 
   return app;
 }
