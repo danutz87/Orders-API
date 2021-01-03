@@ -7,6 +7,10 @@ const { v4: uuidv4 } = require("uuid");
 const expressWinston = require("express-winston");
 const winston = require("winston");
 
+const swaggerUi = require("swagger-ui-express");
+const YAML = require("yamljs");
+const swaggerDocument = YAML.load("./swagger.yaml");
+
 const connectToDb = require("./database");
 
 const { Order } = require("./models");
@@ -18,8 +22,10 @@ async function createApp() {
   await connectToDb();
 
   const app = express();
-
+  // Middleware: parse the body to json
   app.use(bodyParser.json());
+  // Api documentation
+  app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
   app.use(
     expressWinston.logger({
@@ -30,7 +36,7 @@ async function createApp() {
       ),
     })
   );
-
+  // Retrieve all orders
   app.get("/", async (req, res) => {
     try {
       const orders = await Order.find();
@@ -39,11 +45,11 @@ async function createApp() {
       res.status(500).json({ message: err.message });
     }
   });
-
-  app.get("/:id", (req, res) => {
+  // Retrieve an order with the orderId
+  app.get("/:orderId", async (req, res) => {
     const { orderId } = req.params;
     try {
-      const order = Order.findOne({ id: orderId });
+      const order = await Order.findOne({ id: orderId });
       if (!order) {
         return res.status(404).json({ message: "Cannot find order" });
       } else {
@@ -53,7 +59,7 @@ async function createApp() {
       return res.status(500).json({ message: err.message });
     }
   });
-
+  // Create a new order
   app.post("/", async (req, res) => {
     const order = new Order({
       id: uuidv4(),
@@ -68,17 +74,17 @@ async function createApp() {
     }
   });
 
-  app.delete("/:id", async (req, res) => {
+  app.delete("/:orderId", async (req, res) => {
     const { orderId } = req.params;
     try {
-      await Product.findOneAndDelete({ id: orderId });
+      await Order.findOneAndDelete({ id: orderId });
       res.json({ message: "The order was deleted" });
     } catch (err) {
       res.status(500).json({ message: err.message });
     }
   });
 
-  app.put("/:id", async (req, res) => {
+  app.put("/:orderId", async (req, res) => {
     const { orderId } = req.params;
     const orderToUpdate = req.body;
 

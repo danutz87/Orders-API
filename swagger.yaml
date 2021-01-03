@@ -1,0 +1,153 @@
+openapi: 3.0.0
+info:
+  title: Orders API
+  description: API for a service managing orders
+  version: 1.0.0
+servers:
+  - url: http://localhost:3000
+    description: Optional server description, e.g. Main (production) server
+  - url: http://staging-api.example.com
+    description: Optional server description, e.g. Internal staging server for testing
+paths:
+  /:
+    get:
+      summary: Returns all the orders in the database
+      description:  Optional extended description in CommonMark or HTML.
+      responses:
+        "200": # status code
+          description: All the orders as JSON
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    example: cef5bf93-2d6a-4678-bfba-04ce34ae710a
+                  product:
+                    type: string
+                    example: Cat food
+                  price:
+                    type: number
+                    example: 100
+        '500': # status code
+          description: Error message.
+        default:
+          description: Unexpected error
+    post:
+      summary: Creates an order.
+      description: Order object that needs to be added.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: string
+                product:
+                  type: string
+                price:
+                  type: number         
+      responses: 
+        '201': # status code
+          description: New order was created
+        '400': # status code
+          description: Error message.
+        default:
+          description: Unexpected error
+  /{orderId}:
+    get:
+      summary: Returns a single order by id.
+      description: We used the uuid to generate a random id for each order
+      parameters:
+        - in: path
+          name: orderId
+          required: true
+          schema:
+            type: string
+      responses:
+        "200": # status code
+          description: An order as JSON
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    example: cef5bf93-2d6a-4678-bfba-04ce34ae710a
+                  product:
+                    type: string
+                    example: Cat food
+                  price:
+                    type: number
+                    example: 100
+        '404': # status code
+          description: An order with the specified ID was not found.
+        '500': # status code
+          description: Error message.
+        default:
+          description: Unexpected error
+    delete:
+      summary: Deletes an order by its id.
+      parameters:
+        - in: path
+          name: orderId
+          required: true
+          schema:
+            type: string
+      responses:
+        "200": # status code
+          description: The order was deleted.
+        '500': # status code
+          description: Error message.
+        default:
+          description: Unexpected error.
+    put:
+      summary: Updates an existing order.
+      description:  Order object that needs to be added.
+      parameters:
+        - in: path
+          name: orderId
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: string
+                product:
+                  type: string
+                price:
+                  type: number
+      responses:
+        "200": # status code
+          description: An order as JSON
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    example: cef5bf93-2d6a-4678-bfba-04ce34ae710a
+                  product:
+                    type: string
+                    example: Cat food
+                  price:
+                    type: number
+                    example: 100
+        '400': # status code
+          description: Invalid id supplied.
+        '500': # status code
+          description: Error message.
+        default:
+          description: Unexpected error
+
