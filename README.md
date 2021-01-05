@@ -55,3 +55,7 @@ Database -> Database: Update the OrderRecord
 Database -> Server: Updated OrderRecord
 Server -> Client: Successfully updated the product
 Server --> Client: If any error: error(500)
+
+# System Architecture
+
+![products system architecture](https://user-images.githubusercontent.com/51827144/103209869-0521ed00-48fc-11eb-929c-4ce0a17a9c1a.jpg)
