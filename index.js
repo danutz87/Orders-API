@@ -21,12 +21,6 @@ const port = process.env.PORT;
 async function createApp() {
   await connectToDb();
 
-  const app = express();
-  // Middleware: parse the body to json
-  app.use(bodyParser.json());
-  // Api documentation
-  app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
-
   app.use(
     expressWinston.logger({
       transports: [new winston.transports.Console()],
@@ -36,18 +30,37 @@ async function createApp() {
       ),
     })
   );
+
+  const app = express();
+  // Middleware: parse the body to json
+  app.use(bodyParser.json());
+  // Api documentation
+  app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+
+  app.use(
+    expressWinston.errorLogger({
+      transports: [new winston.transports.Console()],
+      format: winston.format.combine(
+        winston.format.colorize(),
+        winston.format.json()
+      ),
+    })
+  );
+
   // Retrieve all orders
   app.get("/", async (req, res) => {
     try {
       const orders = await Order.find();
       res.json(orders);
     } catch (err) {
-      res.status(500).json({ message: err.message });
+      res.status(500).json({ message: "Internal server error" });
     }
   });
   // Retrieve an order with the orderId
   app.get("/:orderId", async (req, res) => {
     const { orderId } = req.params;
+
+    if (!orderId) res.status(400).end();
     try {
       const order = await Order.findOne({ id: orderId });
       if (!order) {
@@ -56,7 +69,7 @@ async function createApp() {
         res.send(order);
       }
     } catch (err) {
-      return res.status(500).json({ message: err.message });
+      return res.status(500).json({ message: "Internal server error" });
     }
   });
   // Create a new order
@@ -70,17 +83,19 @@ async function createApp() {
       const newOrder = await order.save();
       res.status(201).json(newOrder);
     } catch (err) {
-      res.status(400).json({ message: err.message });
+      res.status(400).json({ message: "Bad request" });
     }
   });
 
   app.delete("/:orderId", async (req, res) => {
     const { orderId } = req.params;
+
+    if (!orderId) res.status(400).end();
     try {
       await Order.findOneAndDelete({ id: orderId });
       res.json({ message: "The order was deleted" });
     } catch (err) {
-      res.status(500).json({ message: err.message });
+      res.status(500).json({ message: "Internal server error" });
     }
   });
 
@@ -96,7 +111,7 @@ async function createApp() {
       );
       res.json(updatedOrder);
     } catch (err) {
-      res.status(500).json({ message: err.message });
+      res.status(500).json({ message: "Internal server error" });
     }
   });
 

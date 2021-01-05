@@ -31,7 +31,7 @@ paths:
                     type: number
                     example: 100
         '500': # status code
-          description: Error message.
+          description: Internal server error.
         default:
           description: Unexpected error
     post:
@@ -53,8 +53,8 @@ paths:
       responses: 
         '201': # status code
           description: New order was created
-        '400': # status code
-          description: Error message.
+        '500': # status code
+          description: Internal server error.
         default:
           description: Unexpected error
   /{orderId}:
@@ -87,7 +87,7 @@ paths:
         '404': # status code
           description: An order with the specified ID was not found.
         '500': # status code
-          description: Error message.
+          description: Internal server error.
         default:
           description: Unexpected error
     delete:
@@ -99,10 +99,10 @@ paths:
           schema:
             type: string
       responses:
-        "200": # status code
+        "204": # status code
           description: The order was deleted.
         '500': # status code
-          description: Error message.
+          description: Internal server error.
         default:
           description: Unexpected error.
     put:
@@ -147,7 +147,7 @@ paths:
         '400': # status code
           description: Invalid id supplied.
         '500': # status code
-          description: Error message.
+          description: Internal server error.
         default:
           description: Unexpected error
 
