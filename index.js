@@ -1,4 +1,6 @@
-require("dotenv").config();
+if (process.env.NODE_ENV == "development") {
+  require("dotenv").config();
+}
 
 const express = require("express");
 const bodyParser = require("body-parser");
@@ -30,6 +32,13 @@ async function createApp() {
       ),
     })
   );
+  if (process.env.NODE_ENV !== "production") {
+    logger.add(
+      new winston.transports.Console({
+        format: winston.format.simple(),
+      })
+    );
+  }
 
   const app = express();
   // Middleware: parse the body to json
@@ -60,7 +69,7 @@ async function createApp() {
   app.get("/:orderId", async (req, res) => {
     const { orderId } = req.params;
 
-    if (!orderId) res.status(400).end();
+    if (!orderId) res.json({ message: "Order not found" });
     try {
       const order = await Order.findOne({ id: orderId });
       if (!order) {
