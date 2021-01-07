@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
-    "dev": "NODE_ENV=development node index.js",
+    "dev": "SET NODE_ENV=development node index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
@@ -19,8 +19,12 @@
     "yamljs": "^0.3.0"
   },
   "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^4.12.0",
+    "@typescript-eslint/parser": "^4.12.0",
     "dotenv": "^8.2.0",
-    "nodemon": "^2.0.7"
+    "eslint": "^7.17.0",
+    "nodemon": "^2.0.7",
+    "prettier": "2.2.1"
   },
   "repository": {
     "type": "git",

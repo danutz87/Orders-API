@@ -1,6 +1,6 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
 
-const Order = mongoose.model("Order", {
+const Order = mongoose.model('Order', {
   id: String,
   product: String,
   price: Number,

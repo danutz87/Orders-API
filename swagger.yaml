@@ -12,9 +12,9 @@ paths:
   /:
     get:
       summary: Returns all the orders in the database
-      description:  Optional extended description in CommonMark or HTML.
+      description: Optional extended description in CommonMark or HTML.
       responses:
-        "200": # status code
+        '200': # status code
           description: All the orders as JSON
           content:
             application/json:
@@ -49,8 +49,8 @@ paths:
                 product:
                   type: string
                 price:
-                  type: number         
-      responses: 
+                  type: number
+      responses:
         '201': # status code
           description: New order was created
         '500': # status code
@@ -68,7 +68,7 @@ paths:
           schema:
             type: string
       responses:
-        "200": # status code
+        '200': # status code
           description: An order as JSON
           content:
             application/json:
@@ -99,7 +99,7 @@ paths:
           schema:
             type: string
       responses:
-        "204": # status code
+        '204': # status code
           description: The order was deleted.
         '500': # status code
           description: Internal server error.
@@ -107,7 +107,7 @@ paths:
           description: Unexpected error.
     put:
       summary: Updates an existing order.
-      description:  Order object that needs to be added.
+      description: Order object that needs to be added.
       parameters:
         - in: path
           name: orderId
@@ -128,7 +128,7 @@ paths:
                 price:
                   type: number
       responses:
-        "200": # status code
+        '200': # status code
           description: An order as JSON
           content:
             application/json:
@@ -150,4 +150,3 @@ paths:
           description: Internal server error.
         default:
           description: Unexpected error
-
