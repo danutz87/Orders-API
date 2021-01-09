@@ -1,54 +1,36 @@
-if (process.env.NODE_ENV === 'development') {
-  require('dotenv').config();
-}
+import 'dotenv/config.js';
 
-const express = require('express');
-const bodyParser = require('body-parser');
-const { v4: uuidv4 } = require('uuid');
+import express from 'express';
+import bodyParser from 'body-parser';
+import { v4 as uuidv4 } from 'uuid';
 
-const expressWinston = require('express-winston');
-const winston = require('winston');
+import expressWinston from 'express-winston';
+import winston from 'winston';
 
-const swaggerUi = require('swagger-ui-express');
-const YAML = require('yamljs');
-const swaggerDocument = YAML.load('./swagger.yaml');
+import { serve, setup } from 'swagger-ui-express';
+import Yaml from 'yamljs';
+const swaggerDocument = Yaml.load('./swagger.yaml');
 
-const connectToDb = require('./database');
+import connectToDb from './database.js';
 
-const { Order } = require('./models');
-const { response } = require('express');
+import { Order } from './models.js';
+import logger, { productionLoggerConfig, developmentLoggerConfig } from './utils/logger.js';
 
 const port = process.env.PORT;
 
 async function createApp() {
   await connectToDb();
-
-  app.use(
-    expressWinston.logger({
-      transports: [new winston.transports.Console()],
-      format: winston.format.combine(winston.format.colorize(), winston.format.json()),
-    })
-  );
-  if (process.env.NODE_ENV !== 'production') {
-    logger.add(
-      new winston.transports.Console({
-        format: winston.format.simple(),
-      })
-    );
-  }
-
   const app = express();
+  if (process.env.NODE_ENV == 'production') {
+    app.use(expressWinston.logger(productionLoggerConfig));
+  } else {
+    app.use(expressWinston.logger(developmentLoggerConfig));
+  }
   // Middleware: parse the body to json
   app.use(bodyParser.json());
-  // Api documentation
-  app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
-  app.use(
-    expressWinston.errorLogger({
-      transports: [new winston.transports.Console()],
-      format: winston.format.combine(winston.format.colorize(), winston.format.json()),
-    })
-  );
+  // Api documentation
+  app.use('/api-docs', serve, setup(swaggerDocument));
 
   // Retrieve all orders
   app.get('/', async (req, res) => {
@@ -56,6 +38,7 @@ async function createApp() {
       const orders = await Order.find();
       res.json(orders);
     } catch (err) {
+      logger.error({ message: err.toString() });
       res.status(500).json({ message: 'Internal server error' });
     }
   });
@@ -66,10 +49,10 @@ async function createApp() {
     if (!orderId) res.json({ message: 'Order not found' });
     try {
       const order = await Order.findOne({ id: orderId });
-      if (order) {
+      if (!order) {
         return res.status(404).json({ message: 'Cannot find order' });
       } else {
-        res.send(order);
+        res.json(order);
       }
     } catch (err) {
       return res.status(500).json({ message: 'Internal server error' });
