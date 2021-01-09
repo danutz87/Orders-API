@@ -1,4 +1,6 @@
-import 'dotenv/config.js';
+if (process.env.NODE_ENV == 'development') {
+  import 'dotenv/config.js';
+}
 
 import express from 'express';
 import bodyParser from 'body-parser';
@@ -20,7 +22,9 @@ const port = process.env.PORT;
 
 async function createApp() {
   await connectToDb();
+
   const app = express();
+
   if (process.env.NODE_ENV == 'production') {
     app.use(expressWinston.logger(productionLoggerConfig));
   } else {
