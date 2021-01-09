@@ -1,11 +1,7 @@
-const mongoose = require("mongoose");
+import mongoose from 'mongoose';
 
-const Order = mongoose.model("Order", {
+export const Order = mongoose.model('Order', {
   id: String,
   product: String,
   price: Number,
 });
-
-module.exports = {
-  Order,
-};

@@ -1,66 +1,65 @@
-require("dotenv").config();
+import 'dotenv/config.js';
 
-const express = require("express");
-const bodyParser = require("body-parser");
-const { v4: uuidv4 } = require("uuid");
+import express from 'express';
+import bodyParser from 'body-parser';
+import { v4 as uuidv4 } from 'uuid';
 
-const expressWinston = require("express-winston");
-const winston = require("winston");
+import expressWinston from 'express-winston';
+import winston from 'winston';
 
-const swaggerUi = require("swagger-ui-express");
-const YAML = require("yamljs");
-const swaggerDocument = YAML.load("./swagger.yaml");
+import { serve, setup } from 'swagger-ui-express';
+import Yaml from 'yamljs';
+const swaggerDocument = Yaml.load('./swagger.yaml');
 
-const connectToDb = require("./database");
+import connectToDb from './database.js';
 
-const { Order } = require("./models");
-const { response } = require("express");
+import { Order } from './models.js';
+import logger, { productionLoggerConfig, developmentLoggerConfig } from './utils/logger.js';
 
 const port = process.env.PORT;
 
 async function createApp() {
   await connectToDb();
-
   const app = express();
+  if (process.env.NODE_ENV == 'production') {
+    app.use(expressWinston.logger(productionLoggerConfig));
+  } else {
+    app.use(expressWinston.logger(developmentLoggerConfig));
+  }
   // Middleware: parse the body to json
   app.use(bodyParser.json());
-  // Api documentation
-  app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
-  app.use(
-    expressWinston.logger({
-      transports: [new winston.transports.Console()],
-      format: winston.format.combine(
-        winston.format.colorize(),
-        winston.format.json()
-      ),
-    })
-  );
+  // Api documentation
+  app.use('/api-docs', serve, setup(swaggerDocument));
+
   // Retrieve all orders
-  app.get("/", async (req, res) => {
+  app.get('/', async (req, res) => {
     try {
       const orders = await Order.find();
       res.json(orders);
     } catch (err) {
-      res.status(500).json({ message: err.message });
+      logger.error({ message: err.toString() });
+      res.status(500).json({ message: 'Internal server error' });
     }
   });
   // Retrieve an order with the orderId
-  app.get("/:orderId", async (req, res) => {
+  app.get('/:orderId', async (req, res) => {
     const { orderId } = req.params;
+
+    if (!orderId) res.json({ message: 'Order not found' });
     try {
       const order = await Order.findOne({ id: orderId });
       if (!order) {
-        return res.status(404).json({ message: "Cannot find order" });
+        return res.status(404).json({ message: 'Cannot find order' });
       } else {
-        res.send(order);
+        res.json(order);
       }
     } catch (err) {
-      return res.status(500).json({ message: err.message });
+      return res.status(500).json({ message: 'Internal server error' });
     }
   });
   // Create a new order
-  app.post("/", async (req, res) => {
+  app.post('/', async (req, res) => {
     const order = new Order({
       id: uuidv4(),
       product: req.body.product,
@@ -70,33 +69,32 @@ async function createApp() {
       const newOrder = await order.save();
       res.status(201).json(newOrder);
     } catch (err) {
-      res.status(400).json({ message: err.message });
+      res.status(500).json({ message: 'Bad request' });
     }
   });
 
-  app.delete("/:orderId", async (req, res) => {
+  app.delete('/:orderId', async (req, res) => {
     const { orderId } = req.params;
+
+    if (!orderId) res.status(400).end();
     try {
       await Order.findOneAndDelete({ id: orderId });
-      res.json({ message: "The order was deleted" });
+      res.json({ message: 'The order was deleted' });
     } catch (err) {
-      res.status(500).json({ message: err.message });
+      res.status(500).json({ message: 'Internal server error' });
     }
   });
 
-  app.put("/:orderId", async (req, res) => {
+  app.put('/:orderId', async (req, res) => {
     const { orderId } = req.params;
     const orderToUpdate = req.body;
 
     if (!orderId) res.status(400).end();
     try {
-      const updatedOrder = await Order.findOneAndUpdate(
-        { id: orderId },
-        orderToUpdate
-      );
+      const updatedOrder = await Order.findOneAndUpdate({ id: orderId }, orderToUpdate);
       res.json(updatedOrder);
     } catch (err) {
-      res.status(500).json({ message: err.message });
+      res.status(500).json({ message: 'Internal server error' });
     }
   });
 
@@ -104,7 +102,5 @@ async function createApp() {
 }
 
 createApp().then((app) => {
-  app.listen(port, () =>
-    console.log(`Server running at http://localhost:${port}`)
-  );
+  app.listen(port, () => console.log(`Server running at http://localhost:${port}`));
 });
