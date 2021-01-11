@@ -1,7 +1,4 @@
-if (process.env.NODE_ENV !== 'production') {
-  import 'dotenv/config.js';
-}
-
+console.log(process.env);
 import express from 'express';
 import bodyParser from 'body-parser';
 import { v4 as uuidv4 } from 'uuid';
