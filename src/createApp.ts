@@ -1,7 +1,7 @@
-import express from 'express';
+import express, { Request } from 'express';
 import bodyParser from 'body-parser';
 import { v4 as uuidv4 } from 'uuid';
-import expressWinston from 'express-winston';
+import expressWinston, { requestWhitelist } from 'express-winston';
 import { serve, setup } from 'swagger-ui-express';
 import Yaml from 'yamljs';
 
@@ -54,7 +54,7 @@ async function createApp(config) {
     }
   });
   // Create a new order
-  app.post('/order', async (req, res) => {
+  app.post('/order', async (req:Request, res) => {
     const order = new Order({
       id: uuidv4(),
       product: req.body.product,
