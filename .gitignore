@@ -105,3 +105,5 @@ dist
 
 #Files that are not formated
 .prettierignore
+
+build

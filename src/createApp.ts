@@ -5,9 +5,9 @@ import expressWinston from 'express-winston';
 import { serve, setup } from 'swagger-ui-express';
 import Yaml from 'yamljs';
 
-import connectToDb from './database.js';
-import { Order } from './models.js';
-import logger, { productionLoggerConfig, developmentLoggerConfig } from './utils/logger.js';
+import connectToDb from './database';
+import { Order } from './models';
+import logger, { productionLoggerConfig, developmentLoggerConfig } from './utils/logger';
 
 const swaggerDocument = Yaml.load('./swagger.yaml');
 
