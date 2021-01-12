@@ -1,29 +1,28 @@
 import request from 'supertest';
 import createApp from '../createApp.js';
-import * as mongoServer from 'mongodb-memory-server';
+import mongoServer from 'mongodb-memory-server';
 import mongoose from 'mongoose';
 
-const mongod = new mongoServer.default.default();
 
-let app, config;
+let app, config, mongod;
 
 beforeAll(async () => {
-  const uri = await mongod.getUri();
+  mongod = await new mongoServer.MongoMemoryServer();
   config = {
-    MONGO_URL: '',
+    MONGO_URL: await mongod.getUri(),
   };
   app = await createApp(config);
 });
 
 afterAll(async () => {
-  // you may stop mongod manually
-  await mongod.stop();
   // after some useful code don't forget to disconnect
   await mongoose.disconnect();
+  // you may stop mongod manually
+  await mongod.stop();
 });
 
 describe('API Tests', () => {
-  it('Creates a new order', () => {
+  it('Creates a new order', (done) => {
     request(app)
       .post('/order')
       .send({
@@ -31,10 +30,12 @@ describe('API Tests', () => {
         price: 5,
       })
       .expect('Content-Type', /json/)
-      // .expect(201)
+      .expect(201)
       .end(function (err, res) {
         if (err) throw err;
-        // console.log(res);
+        expect(res.body.product).toEqual('Bread')
+        expect(res.body.price).toEqual(4)
+        done();
       });
   });
 });
