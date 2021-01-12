@@ -1,9 +1,13 @@
-export default {
-  // if you're also using typescript
-  testEnvironment: 'node',
-  verbose: true,
-  // registers babel.config.js with jest
-  transform: {
-    '^.+\\.js$': 'babel-jest',
+module.exports = {
+  "roots": [
+    "<rootDir>/src"
+  ],
+  "testMatch": [
+    "**/__tests__/**/*.+(ts|js)",
+    "**/?(*.)+(spec|test).+(ts|js)"
+  ],
+  "transform": {
+    "^.+\\.(ts|tsx)$": "ts-jest"
   },
-};
+  "testEnvironment": 'node'
+}

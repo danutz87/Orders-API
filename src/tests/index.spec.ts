@@ -1,13 +1,12 @@
 import request from 'supertest';
-import createApp from '../createApp.js';
-import mongoServer from 'mongodb-memory-server';
+import createApp from '../createApp';
+import {MongoMemoryServer}  from 'mongodb-memory-server';
 import mongoose from 'mongoose';
-
 
 let app, config, mongod;
 
 beforeAll(async () => {
-  mongod = await new mongoServer.MongoMemoryServer();
+  mongod = await new MongoMemoryServer();
   config = {
     MONGO_URL: await mongod.getUri(),
   };
@@ -22,7 +21,7 @@ afterAll(async () => {
 });
 
 describe('API Tests', () => {
-  it('Creates a new order', (done) => {
+  test('Creates a new order', (done) => {
     request(app)
       .post('/order')
       .send({

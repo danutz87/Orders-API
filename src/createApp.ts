@@ -1,13 +1,13 @@
-import express from 'express';
+import express, { Request } from 'express';
 import bodyParser from 'body-parser';
 import { v4 as uuidv4 } from 'uuid';
-import expressWinston from 'express-winston';
+import expressWinston, { requestWhitelist } from 'express-winston';
 import { serve, setup } from 'swagger-ui-express';
 import Yaml from 'yamljs';
 
-import connectToDb from './database.js';
-import { Order } from './models.js';
-import logger, { productionLoggerConfig, developmentLoggerConfig } from './utils/logger.js';
+import connectToDb from './database';
+import { Order } from './models';
+import logger, { productionLoggerConfig, developmentLoggerConfig } from './utils/logger';
 
 const swaggerDocument = Yaml.load('./swagger.yaml');
 
@@ -54,7 +54,7 @@ async function createApp(config) {
     }
   });
   // Create a new order
-  app.post('/order', async (req, res) => {
+  app.post('/order', async (req:Request, res) => {
     const order = new Order({
       id: uuidv4(),
       product: req.body.product,
