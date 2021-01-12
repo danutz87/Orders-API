@@ -1,7 +1,9 @@
 import express, { Request } from 'express';
 import bodyParser from 'body-parser';
 import { v4 as uuidv4 } from 'uuid';
-import expressWinston, { requestWhitelist } from 'express-winston';
+
+import expressWinston from 'express-winston';
+
 import { serve, setup } from 'swagger-ui-express';
 import Yaml from 'yamljs';
 
@@ -38,19 +40,19 @@ async function createApp(config) {
     }
   });
   // Retrieve an order with the orderId
-  app.get('/:orderId', async (req, res) => {
+  app.get('/:orderId', async (req:Request, res) => {
     const { orderId } = req.params;
 
     if (!orderId) res.json({ message: 'Order not found' });
     try {
       const order = await Order.findOne({ id: orderId });
       if (!order) {
-        return res.status(404).json({ message: 'Cannot find order' });
+        res.status(404).json({ message: 'Cannot find order' });
       } else {
         res.json(order);
       }
     } catch (err) {
-      return res.status(500).json({ message: 'Internal server error' });
+       res.status(500).json({ message: 'Internal server error' });
     }
   });
   // Create a new order
