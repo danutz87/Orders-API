@@ -1,5 +1,5 @@
 import request from 'supertest';
-import createApp from '../createApp';
+import * as createApp from '../createApp';
 import {MongoMemoryServer}  from 'mongodb-memory-server';
 import mongoose from 'mongoose';
 
@@ -10,7 +10,7 @@ beforeAll(async () => {
   config = {
     MONGO_URL: await mongod.getUri(),
   };
-  app = await createApp(config);
+  app = await createApp.default(config);
 });
 
 afterAll(async () => {
@@ -33,7 +33,7 @@ describe('API Tests', () => {
       .end(function (err, res) {
         if (err) throw err;
         expect(res.body.product).toEqual('Bread')
-        expect(res.body.price).toEqual(4)
+        expect(res.body.price).toEqual(5)
         done();
       });
   });
