@@ -2,11 +2,12 @@ import request from 'supertest';
 import * as createApp from '../createApp';
 import {MongoMemoryServer}  from 'mongodb-memory-server';
 import mongoose from 'mongoose';
+import { Express } from 'express-serve-static-core';
 
-let app, config, mongod;
+let app: Express, config: { MONGO_URL: any; }, mongod: MongoMemoryServer;
 
 beforeAll(async () => {
-  mongod = await new MongoMemoryServer();
+  mongod = new MongoMemoryServer();
   config = {
     MONGO_URL: await mongod.getUri(),
   };
@@ -38,3 +39,5 @@ describe('API Tests', () => {
       });
   });
 });
+
+

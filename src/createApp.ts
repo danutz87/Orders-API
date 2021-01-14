@@ -13,7 +13,7 @@ import logger, { productionLoggerConfig, developmentLoggerConfig } from './utils
 
 const swaggerDocument = Yaml.load('./swagger.yaml');
 
-async function createApp(config) {
+async function createApp(config: { MONGO_URL: string; }) {
   await connectToDb(config);
 
   const app = express();
