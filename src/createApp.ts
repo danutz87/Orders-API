@@ -1,4 +1,4 @@
-import express, { Request } from 'express';
+import express, { Request, Response } from 'express';
 import bodyParser from 'body-parser';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -30,7 +30,7 @@ async function createApp(config: { MONGO_URL: string; }) {
   app.use('/api-docs', serve, setup(swaggerDocument));
 
   // Retrieve all orders
-  app.get('/', async (req, res) => {
+  app.get('/', async (req:Request, res:Response) => {
     try {
       const orders = await Order.find();
       res.json(orders);
@@ -40,7 +40,7 @@ async function createApp(config: { MONGO_URL: string; }) {
     }
   });
   // Retrieve an order with the orderId
-  app.get('/:orderId', async (req:Request, res) => {
+  app.get('/:orderId', async (req:Request, res:Response) => {
     const { orderId } = req.params;
 
     if (!orderId) res.json({ message: 'Order not found' });
@@ -56,7 +56,7 @@ async function createApp(config: { MONGO_URL: string; }) {
     }
   });
   // Create a new order
-  app.post('/order', async (req:Request, res) => {
+  app.post('/order', async (req:Request, res:Response) => {
     const order = new Order({
       id: uuidv4(),
       product: req.body.product,
@@ -71,7 +71,7 @@ async function createApp(config: { MONGO_URL: string; }) {
     }
   });
 
-  app.delete('/:orderId', async (req, res) => {
+  app.delete('/:orderId', async (req:Request, res:Response) => {
     const { orderId } = req.params;
 
     if (!orderId) res.status(400).end();
@@ -83,7 +83,7 @@ async function createApp(config: { MONGO_URL: string; }) {
     }
   });
 
-  app.put('/:orderId', async (req, res) => {
+  app.put('/:orderId', async (req:Request, res:Response) => {
     const { orderId } = req.params;
     const orderToUpdate = req.body;
 
